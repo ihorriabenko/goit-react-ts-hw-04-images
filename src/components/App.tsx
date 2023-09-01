@@ -27,8 +27,6 @@ const App: React.FC = (): JSX.Element => {
 
         setShowBtn(page < Math.ceil(data.totalHits / 12));
 
-        if (page === 1) return setHits([...data.hits]);
-
         setHits((prev) => [...prev, ...data.hits]);
       } catch (error) {
         throw error;
@@ -43,6 +41,7 @@ const App: React.FC = (): JSX.Element => {
   const handleSubmit = (value: string) => {
     setQuery(value);
     setPage(1);
+    setHits([]);
   };
 
   const handleClick = () => {
