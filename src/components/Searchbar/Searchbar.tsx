@@ -1,32 +1,23 @@
 import { useState } from 'react';
 
 interface SearchbarProps {
-  setPage: React.Dispatch<React.SetStateAction<number>>;
-  setQuery: React.Dispatch<React.SetStateAction<string>>;
-  updateUrl: (q: string, p: number) => void;
+  handleSubmit: (value: string) => void;
 }
 
-const Searchbar: React.FC<SearchbarProps> = ({
-  setPage,
-  setQuery,
-  updateUrl,
-}): JSX.Element => {
+const Searchbar: React.FC<SearchbarProps> = ({ handleSubmit }): JSX.Element => {
   const [value, setValue] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
-  // searchImages
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if(!value.trim()) alert('Invalid query')
+    if (!value.trim()) alert('Invalid query');
 
     if (value.trim()) {
-      setPage(1);
-      setQuery(value);
-      updateUrl(value, 1);
+      handleSubmit(value);
     }
 
     setValue('');
@@ -34,7 +25,7 @@ const Searchbar: React.FC<SearchbarProps> = ({
 
   return (
     <header className='searchbar'>
-      <form className='searchForm' onSubmit={handleSubmit}>
+      <form className='searchForm' onSubmit={onSubmit}>
         <button type='submit' className='searchForm-button'>
           <span className='button-label'>Search</span>
         </button>

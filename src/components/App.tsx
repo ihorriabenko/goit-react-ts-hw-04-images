@@ -1,64 +1,60 @@
 import { useEffect, useState } from 'react';
-import { Data, Hit } from '../types/types';
+import { getImages } from '../api/api';
+import { Hit } from '../types/types';
+
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
-import './App.css';
 import Loader from './Loader/Loader';
+
+import './App.css';
 
 const App: React.FC = (): JSX.Element => {
   const [query, setQuery] = useState('');
-  const [url, setUrl] = useState('');
-  const [hits, setHits] = useState<Hit[]>([]);
   const [page, setPage] = useState(1);
+  const [hits, setHits] = useState<Hit[]>([]);
   const [showBtn, setShowBtn] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (url) {
-      getData();
-    }
-  }, [url]);
+    if (!query) return;
 
-  const getData = async () => {
-    setLoading(true);
+    const getData = async () => {
+      setLoading(true);
 
-    try {
-      let response = await fetch(url);
-      let data: Data = await response.json();
+      try {
+        const data = await getImages(query, page);
 
-      setShowBtn(page < Math.ceil(data.totalHits / 12));
+        setShowBtn(page < Math.ceil(data.totalHits / 12));
 
-      if (page === 1) return setHits([...data.hits]);
+        if (page === 1) return setHits([...data.hits]);
 
-      setHits((prev) => [...prev, ...data.hits]);
-    } catch (error) {
-      throw new Error();
-    } finally {
-      setLoading(false);
-    }
+        setHits((prev) => [...prev, ...data.hits]);
+      } catch (error) {
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getData();
+  }, [query, page]);
+
+  const handleSubmit = (value: string) => {
+    setQuery(value);
+    setPage(1);
   };
 
-  const updateUrl = (q: string, p: number) => {
-    let newUrl = `https://pixabay.com/api/?q=${q}&page=${p.toString()}&key=27832642-aa50f7f08c8a181668a8915c7&image_type=photo&orientation=horizontal&per_page=12`;
-
-    setUrl(newUrl);
+  const handleClick = () => {
+    setPage((prev) => prev + 1);
   };
 
   return (
     <div className='App'>
-      <Searchbar setPage={setPage} setQuery={setQuery} updateUrl={updateUrl} />
+      <Searchbar handleSubmit={handleSubmit} />
       <ImageGallery hits={hits} />
-      {showBtn && (
-        <Button
-        content='Load more'
-        page={page}
-        query={query}
-        setPage={setPage}
-        updateUrl={updateUrl}
-        />
-        )}
-        {loading && <Loader />}
+      {showBtn && <Button content='Load more' handleClick={handleClick} />}
+      {loading && <Loader />}
     </div>
   );
 };

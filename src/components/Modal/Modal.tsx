@@ -9,31 +9,28 @@ const Modal: React.FC<ModalProps> = ({
   largeImageURL,
   setShowModal,
 }): JSX.Element => {
-  const handleEscape = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      setShowModal(false);
-    }
-  };
-
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const modal = document.querySelector('.modal') as HTMLElement;
-      if (modal && !modal.contains(e.target as Node)) {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
         setShowModal(false);
       }
     };
 
     window.addEventListener('keydown', handleEscape);
-    window.addEventListener('mousedown', handleClickOutside);
 
     return () => {
       window.removeEventListener('keydown', handleEscape);
-      window.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [setShowModal]);
+
+  const handleClickOutside: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    if (e.target === e.currentTarget) {
+      setShowModal(false);
+    }
+  };
 
   return (
-    <div className='overlay'>
+    <div className='overlay' onClick={handleClickOutside}>
       <div className='modal'>
         <img src={largeImageURL} alt='img' />
       </div>
